@@ -8,7 +8,6 @@
       .mindar-ui-scanning { display: none !important; }
       .a-enter-vr-button { display: none !important; }
 
-      /* HUD: Adjusted to allow text wrapping for the longer start clue */
       #status-message {
         position: absolute;
         bottom: 50px; 
@@ -27,7 +26,7 @@
         border-radius: 15px;       
         pointer-events: none;
         z-index: 999;
-        white-space: pre-wrap; /* Allows the \n to work in the HUD */
+        white-space: pre-wrap; /* Essential for handling the newlines */
       }
     </style>
 
@@ -38,6 +37,9 @@
         init: function () {
           const statusText = document.getElementById("status-message");
 
+          // FIX: Set the start message here in JS so the \n works correctly
+          statusText.innerText = ">> CLUE 01:\nFIND THE SCENE THAT HANGS ABOUT,\nWITH PLANTS AND TREES\nOF THE PALM HOUSE.";
+
           function checkAndReveal(targetIndex, requiredStage, nextStageMsg, contentId, textId) {
             const contentEntity = document.querySelector(contentId);
             const textEntity = document.querySelector(textId);
@@ -47,7 +49,6 @@
               if (currentStage === requiredStage) {
                 currentStage = requiredStage + 1;
                 
-                // FLASH EFFECT
                 statusText.innerText = ">> " + nextStageMsg; 
                 statusText.style.borderColor = "#39ff14"; 
                 statusText.style.color = "#39ff14";       
@@ -65,22 +66,18 @@
 
           // --- EVENT LISTENERS ---
           
-          // Target 1: Gallery -> Reveals Clue for Tile
           document.querySelector('#target-1').addEventListener("targetFound", event => {
             checkAndReveal(0, 0, "CLUE 1 DECRYPTED.\nCHECK THE 3D TEXT.", "#content-1", "#text-1");
           });
 
-          // Target 2: Tile -> Reveals Clue for Peacocks
           document.querySelector('#target-2').addEventListener("targetFound", event => {
             checkAndReveal(1, 1, "CLUE 2 DECRYPTED.\nCHECK THE 3D TEXT.", "#content-2", "#text-2");
           });
 
-          // Target 3: Peacocks -> Reveals Clue for Sunset
           document.querySelector('#target-3').addEventListener("targetFound", event => {
             checkAndReveal(2, 2, "CLUE 3 DECRYPTED.\nCHECK THE 3D TEXT.", "#content-3", "#text-3");
           });
 
-          // Target 4: Sunset -> Win State
           document.querySelector('#target-4').addEventListener("targetFound", event => {
              const contentEntity = document.querySelector("#content-4");
              if (currentStage >= 3) {
@@ -95,7 +92,7 @@
     </script>
   </head>
   <body>
-    <div id="status-message">>> CLUE 01:\nFIND THE SCENE THAT HANGS ABOUT,\nWITH PLANTS AND TREES\nOF THE PALM HOUSE.</div>
+    <div id="status-message"></div>
 
     <a-scene riddle-logic mindar-image="imageTargetSrc: ./targets.mind;" color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
       <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
@@ -108,7 +105,10 @@
       <a-entity id="target-1" mindar-image-target="targetIndex: 0">
         <a-entity id="content-1" visible="true"> 
            <a-entity position="0 0 0" scale="0.8 0.8 0.8">
-              <a-text id="text-1" mixin="neon-text" value="A BOUQUET CARVED\nIN HEAVY STONE,\nWITH PETALS DARK\nAS OBSIDIAN BONE."></a-text>
+              <a-text id="text-1" mixin="neon-text" value="A BOUQUET CARVED
+IN HEAVY STONE,
+WITH PETALS DARK
+AS OBSIDIAN BONE."></a-text>
               <a-entity mixin="neon-bg" position="0 0 -0.01"></a-entity>
            </a-entity>
         </a-entity>
@@ -117,7 +117,10 @@
       <a-entity id="target-2" mindar-image-target="targetIndex: 1">
         <a-entity id="content-2" visible="false">
            <a-entity position="0 0 0" scale="0.8 0.8 0.8">
-              <a-text id="text-2" mixin="neon-text" value="A ROYAL PAIR\nWITH FEATHERS BRIGHT,\nA HUNDRED EYES\nBUT ZERO SIGHT."></a-text>
+              <a-text id="text-2" mixin="neon-text" value="A ROYAL PAIR
+WITH FEATHERS BRIGHT,
+A HUNDRED EYES
+BUT ZERO SIGHT."></a-text>
               <a-entity mixin="neon-bg" position="0 0 -0.01"></a-entity>
            </a-entity>
         </a-entity>
@@ -126,7 +129,10 @@
       <a-entity id="target-3" mindar-image-target="targetIndex: 2">
         <a-entity id="content-3" visible="false">
            <a-entity position="0 0 0" scale="0.8 0.8 0.8">
-              <a-text id="text-3" mixin="neon-text" value="WHERE FIRE MEETS WATER\nAND DAY MEETS NIGHT,\nFIND THE SCENE\nOF FADING LIGHT."></a-text>
+              <a-text id="text-3" mixin="neon-text" value="WHERE FIRE MEETS WATER
+AND DAY MEETS NIGHT,
+FIND THE SCENE
+OF FADING LIGHT."></a-text>
               <a-entity mixin="neon-bg" position="0 0 -0.01"></a-entity>
            </a-entity>
         </a-entity>
@@ -135,7 +141,10 @@
       <a-entity id="target-4" mindar-image-target="targetIndex: 3">
         <a-entity id="content-4" visible="false">
            <a-entity position="0 0 0" scale="1 1 1"> 
-              <a-text id="text-4" font="sourcecodepro" align="center" width="4" color="#39ff14" value="ACCESS GRANTED\n\nTREASURE LOCATION:\nUNDER THE RUG"></a-text>
+              <a-text id="text-4" font="sourcecodepro" align="center" width="4" color="#39ff14" value="ACCESS GRANTED
+
+TREASURE LOCATION:
+UNDER THE RUG"></a-text>
               <a-plane color="black" opacity="0.9" width="2.2" height="1.3" position="0 0 -0.01"></a-plane>
            </a-entity>
         </a-entity>
