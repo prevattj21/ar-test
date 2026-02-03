@@ -26,7 +26,8 @@
         border-radius: 15px;       
         pointer-events: none;
         z-index: 999;
-        white-space: pre-wrap; /* Essential for handling the newlines */
+        white-space: pre-wrap; 
+        transition: all 0.5s ease;
       }
     </style>
 
@@ -37,7 +38,7 @@
         init: function () {
           const statusText = document.getElementById("status-message");
 
-          // FIX: Set the start message here in JS so the \n works correctly
+          // INITIAL STATE
           statusText.innerText = ">> CLUE 01:\nFIND THE SCENE THAT HANGS ABOUT,\nWITH PLANTS AND TREES\nOF THE PALM HOUSE.";
 
           function checkAndReveal(targetIndex, requiredStage, nextStageMsg, contentId, textId) {
@@ -45,7 +46,6 @@
             const textEntity = document.querySelector(textId);
             
             if (currentStage >= requiredStage) {
-              
               if (currentStage === requiredStage) {
                 currentStage = requiredStage + 1;
                 
@@ -58,7 +58,6 @@
                   statusText.style.color = "#00ffff"; 
                 }, 4000);
               }
-
               contentEntity.setAttribute("visible", "true");
               textEntity.setAttribute("color", "#00ffff"); 
             } 
@@ -66,25 +65,35 @@
 
           // --- EVENT LISTENERS ---
           
+          // 1. Gallery -> Reveal Tile Clue
           document.querySelector('#target-1').addEventListener("targetFound", event => {
             checkAndReveal(0, 0, "CLUE 1 DECRYPTED.\nCHECK THE 3D TEXT.", "#content-1", "#text-1");
           });
 
+          // 2. Tile -> Reveal Peacock Clue
           document.querySelector('#target-2').addEventListener("targetFound", event => {
             checkAndReveal(1, 1, "CLUE 2 DECRYPTED.\nCHECK THE 3D TEXT.", "#content-2", "#text-2");
           });
 
+          // 3. Peacocks -> Reveal Sunset Clue
           document.querySelector('#target-3').addEventListener("targetFound", event => {
             checkAndReveal(2, 2, "CLUE 3 DECRYPTED.\nCHECK THE 3D TEXT.", "#content-3", "#text-3");
           });
 
+          // 4. Sunset -> WIN STATE
           document.querySelector('#target-4').addEventListener("targetFound", event => {
              const contentEntity = document.querySelector("#content-4");
+             
              if (currentStage >= 3) {
+               // Reveal the 3D "YOU DID IT" text
                contentEntity.setAttribute("visible", "true");
-               statusText.innerText = ">> MISSION COMPLETE.\nREWARD UNLOCKED.";
+
+               // Update the HUD with the OVEN riddle
                statusText.style.borderColor = "#ff00ff"; 
                statusText.style.color = "#ff00ff"; 
+               statusText.style.fontSize = "15px"; 
+               
+               statusText.innerText = ">> MISSION COMPLETE!\n\nVICTORY IS YOURS,\nYOU CAN'T BE BEAT.\nNOW LOOK WHERE WE BAKE\nTHINGS MEANT TO EAT.";
              }
           });
         }
@@ -141,11 +150,8 @@ OF FADING LIGHT."></a-text>
       <a-entity id="target-4" mindar-image-target="targetIndex: 3">
         <a-entity id="content-4" visible="false">
            <a-entity position="0 0 0" scale="1 1 1"> 
-              <a-text id="text-4" font="sourcecodepro" align="center" width="4" color="#39ff14" value="ACCESS GRANTED
-
-TREASURE LOCATION:
-UNDER THE RUG"></a-text>
-              <a-plane color="black" opacity="0.9" width="2.2" height="1.3" position="0 0 -0.01"></a-plane>
+              <a-text id="text-4" font="sourcecodepro" align="center" width="6" color="#ff00ff" value="YOU DID IT!"></a-text>
+              <a-plane color="black" opacity="0.9" width="3" height="1" position="0 0 -0.01"></a-plane>
            </a-entity>
         </a-entity>
       </a-entity>
