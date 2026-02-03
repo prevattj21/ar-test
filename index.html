@@ -27,7 +27,7 @@
         pointer-events: none;
         z-index: 999;
         white-space: pre-wrap; 
-        transition: all 0.5s ease;
+        transition: border-color 0.5s ease, color 0.5s ease;
       }
     </style>
 
@@ -38,10 +38,24 @@
         init: function () {
           const statusText = document.getElementById("status-message");
 
-          // INITIAL STATE
+          // --- STEP 1: INITIAL QUEST ---
           statusText.innerText = ">> CLUE 01:\nFIND THE SCENE THAT HANGS ABOUT,\nWITH PLANTS AND TREES\nOF THE PALM HOUSE.";
 
-          function checkAndReveal(targetIndex, requiredStage, nextStageMsg, contentId, textId) {
+          function updateQuestLog(nextRiddleText) {
+             // 1. FLASH GREEN (Success)
+             statusText.style.borderColor = "#39ff14"; 
+             statusText.style.color = "#39ff14";
+             statusText.innerText = ">> CLUE DECRYPTED. UPDATING...";
+
+             // 2. SHOW NEW RIDDLE (After 1.5 seconds)
+             setTimeout(() => {
+                statusText.style.borderColor = "#00ffff"; 
+                statusText.style.color = "#00ffff"; 
+                statusText.innerText = ">> NEXT OBJECTIVE:\n\n" + nextRiddleText;
+             }, 1500);
+          }
+
+          function checkAndReveal(targetIndex, requiredStage, nextRiddleText, contentId, textId) {
             const contentEntity = document.querySelector(contentId);
             const textEntity = document.querySelector(textId);
             
@@ -49,15 +63,10 @@
               if (currentStage === requiredStage) {
                 currentStage = requiredStage + 1;
                 
-                statusText.innerText = ">> " + nextStageMsg; 
-                statusText.style.borderColor = "#39ff14"; 
-                statusText.style.color = "#39ff14";       
-                
-                setTimeout(() => { 
-                  statusText.style.borderColor = "#00ffff"; 
-                  statusText.style.color = "#00ffff"; 
-                }, 4000);
+                // UPDATE THE HUD PERMANENTLY
+                updateQuestLog(nextRiddleText);
               }
+              // Still show the 3D text as "Verification" that they found it
               contentEntity.setAttribute("visible", "true");
               textEntity.setAttribute("color", "#00ffff"); 
             } 
@@ -65,34 +74,33 @@
 
           // --- EVENT LISTENERS ---
           
-          // 1. Gallery -> Reveal Tile Clue
+          // 1. Gallery -> Reveals Riddle for TILE
           document.querySelector('#target-1').addEventListener("targetFound", event => {
-            checkAndReveal(0, 0, "CLUE 1 DECRYPTED.\nCHECK THE 3D TEXT.", "#content-1", "#text-1");
+            const tileRiddle = "A BOUQUET CARVED\nIN HEAVY STONE,\nWITH PETALS DARK\nAS OBSIDIAN BONE.";
+            checkAndReveal(0, 0, tileRiddle, "#content-1", "#text-1");
           });
 
-          // 2. Tile -> Reveal Peacock Clue
+          // 2. Tile -> Reveals Riddle for PEACOCKS
           document.querySelector('#target-2').addEventListener("targetFound", event => {
-            checkAndReveal(1, 1, "CLUE 2 DECRYPTED.\nCHECK THE 3D TEXT.", "#content-2", "#text-2");
+            const peacockRiddle = "A ROYAL PAIR\nWITH FEATHERS BRIGHT,\nA HUNDRED EYES\nBUT ZERO SIGHT.";
+            checkAndReveal(1, 1, peacockRiddle, "#content-2", "#text-2");
           });
 
-          // 3. Peacocks -> Reveal Sunset Clue
+          // 3. Peacocks -> Reveals Riddle for SUNSET
           document.querySelector('#target-3').addEventListener("targetFound", event => {
-            checkAndReveal(2, 2, "CLUE 3 DECRYPTED.\nCHECK THE 3D TEXT.", "#content-3", "#text-3");
+            const sunsetRiddle = "WHERE FIRE MEETS WATER\nAND DAY MEETS NIGHT,\nFIND THE SCENE\nOF FADING LIGHT.";
+            checkAndReveal(2, 2, sunsetRiddle, "#content-3", "#text-3");
           });
 
-          // 4. Sunset -> WIN STATE
+          // 4. Sunset -> Reveals Riddle for OVEN (Final)
           document.querySelector('#target-4').addEventListener("targetFound", event => {
              const contentEntity = document.querySelector("#content-4");
-             
              if (currentStage >= 3) {
-               // Reveal the 3D "YOU DID IT" text
                contentEntity.setAttribute("visible", "true");
-
-               // Update the HUD with the OVEN riddle
+               
+               // FINAL UPDATE
                statusText.style.borderColor = "#ff00ff"; 
                statusText.style.color = "#ff00ff"; 
-               statusText.style.fontSize = "15px"; 
-               
                statusText.innerText = ">> MISSION COMPLETE!\n\nVICTORY IS YOURS,\nYOU CAN'T BE BEAT.\nNOW LOOK WHERE WE BAKE\nTHINGS MEANT TO EAT.";
              }
           });
@@ -114,11 +122,8 @@
       <a-entity id="target-1" mindar-image-target="targetIndex: 0">
         <a-entity id="content-1" visible="true"> 
            <a-entity position="0 0 0" scale="0.8 0.8 0.8">
-              <a-text id="text-1" mixin="neon-text" value="A BOUQUET CARVED
-IN HEAVY STONE,
-WITH PETALS DARK
-AS OBSIDIAN BONE."></a-text>
-              <a-entity mixin="neon-bg" position="0 0 -0.01"></a-entity>
+              <a-text id="text-1" mixin="neon-text" value="CLUE DECRYPTED"></a-text>
+              <a-plane color="black" opacity="0.85" width="1.6" height="0.4" position="0 0 -0.01"></a-plane>
            </a-entity>
         </a-entity>
       </a-entity>
@@ -126,11 +131,8 @@ AS OBSIDIAN BONE."></a-text>
       <a-entity id="target-2" mindar-image-target="targetIndex: 1">
         <a-entity id="content-2" visible="false">
            <a-entity position="0 0 0" scale="0.8 0.8 0.8">
-              <a-text id="text-2" mixin="neon-text" value="A ROYAL PAIR
-WITH FEATHERS BRIGHT,
-A HUNDRED EYES
-BUT ZERO SIGHT."></a-text>
-              <a-entity mixin="neon-bg" position="0 0 -0.01"></a-entity>
+              <a-text id="text-2" mixin="neon-text" value="CLUE DECRYPTED"></a-text>
+              <a-plane color="black" opacity="0.85" width="1.6" height="0.4" position="0 0 -0.01"></a-plane>
            </a-entity>
         </a-entity>
       </a-entity>
@@ -138,11 +140,8 @@ BUT ZERO SIGHT."></a-text>
       <a-entity id="target-3" mindar-image-target="targetIndex: 2">
         <a-entity id="content-3" visible="false">
            <a-entity position="0 0 0" scale="0.8 0.8 0.8">
-              <a-text id="text-3" mixin="neon-text" value="WHERE FIRE MEETS WATER
-AND DAY MEETS NIGHT,
-FIND THE SCENE
-OF FADING LIGHT."></a-text>
-              <a-entity mixin="neon-bg" position="0 0 -0.01"></a-entity>
+              <a-text id="text-3" mixin="neon-text" value="CLUE DECRYPTED"></a-text>
+              <a-plane color="black" opacity="0.85" width="1.6" height="0.4" position="0 0 -0.01"></a-plane>
            </a-entity>
         </a-entity>
       </a-entity>
