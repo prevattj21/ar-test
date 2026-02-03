@@ -7,113 +7,138 @@
     <style>
       .mindar-ui-scanning { display: none !important; }
       
-      /* HUD styles */
+      /* HUD: Darker and cleaner */
       #status-message {
         position: absolute;
         bottom: 20px;
         left: 0;
         width: 100%;
         text-align: center;
-        color: white;
-        font-family: sans-serif;
-        font-size: 18px;
-        background: rgba(0,0,0,0.6);
+        color: #00ffff; /* Neon Cyan Text */
+        font-family: 'Courier New', Courier, monospace; /* Monospace font */
+        font-weight: bold;
+        font-size: 16px;
+        background: rgba(0, 0, 0, 0.8); /* Darker background */
         padding: 15px;
+        border-top: 2px solid #00ffff; /* Neon top border */
         pointer-events: none;
         z-index: 999;
       }
     </style>
 
     <script>
-      let currentStage = 0; // 0 = Looking for Clue 1
+      let currentStage = 0; 
 
       AFRAME.registerComponent('riddle-logic', {
         init: function () {
           const statusText = document.getElementById("status-message");
 
-          // --- HELPER FUNCTION ---
-          // This handles revealing content only if the stage is correct
-          function checkAndReveal(targetIndex, requiredStage, nextStageMsg, contentId) {
+          function checkAndReveal(targetIndex, requiredStage, nextStageMsg, contentId, textId) {
             const contentEntity = document.querySelector(contentId);
+            const textEntity = document.querySelector(textId);
             
-            // If we are at the right stage (or have passed it), show the content
+            // LOGIC: Check if we are at the right stage
             if (currentStage >= requiredStage) {
               
-              // If this is the *first* time finding it, advance the game
+              // First time finding it?
               if (currentStage === requiredStage) {
-                currentStage = requiredStage + 1; // Move to next level
-                statusText.innerText = nextStageMsg; // Update HUD
+                currentStage = requiredStage + 1;
+                statusText.innerText = ">> SYSTEM UPDATE: " + nextStageMsg; 
+                statusText.style.color = "#39ff14"; // Flash Green on success
                 
-                // Optional: Play a sound effect here if you wanted
+                // Reset to cyan after 3 seconds
+                setTimeout(() => { statusText.style.color = "#00ffff"; }, 3000);
               }
 
-              // Make the 3D text visible
+              // REVEAL: Make it visible
               contentEntity.setAttribute("visible", "true");
-            } 
-            // If currentStage < requiredStage, we do NOTHING. 
-            // The content remains visible="false".
+              
+              // Ensure color is "Success" Cyan
+              textEntity.setAttribute("color", "#00ffff"); 
+
+            } else {
+              // LOCKED STATE (Optional: Show "Access Denied" if you want)
+              // For now, we keep it invisible as requested.
+            }
           }
 
           // --- EVENT LISTENERS ---
 
-          // Target 1: Gallery (Index 0) - Required Stage: 0
+          // Target 1: Gallery
           const target1 = document.querySelector('#target-1');
           target1.addEventListener("targetFound", event => {
-            checkAndReveal(0, 0, "Clue 1 Found! Find the Black Tile.", "#content-1");
+            checkAndReveal(0, 0, "DATA UPLOADED. FIND THE TILE.", "#content-1", "#text-1");
           });
 
-          // Target 2: Black Tile (Index 1) - Required Stage: 1
+          // Target 2: Tile
           const target2 = document.querySelector('#target-2');
           target2.addEventListener("targetFound", event => {
-            checkAndReveal(1, 1, "Clue 2 Found! Find the Peacocks.", "#content-2");
+            checkAndReveal(1, 1, "ENCRYPTED. FIND THE PEACOCKS.", "#content-2", "#text-2");
           });
 
-          // Target 3: Peacocks (Index 2) - Required Stage: 2
+          // Target 3: Peacocks
           const target3 = document.querySelector('#target-3');
           target3.addEventListener("targetFound", event => {
-            checkAndReveal(2, 2, "Clue 3 Found! Find the Sunset.", "#content-3");
+            checkAndReveal(2, 2, "KEY FRAGMENT FOUND. FIND THE SUNSET.", "#content-3", "#text-3");
           });
 
-          // Target 4: Sunset (Index 3) - Required Stage: 3
+          // Target 4: Sunset
           const target4 = document.querySelector('#target-4');
           target4.addEventListener("targetFound", event => {
-            checkAndReveal(3, 3, "YOU WIN! The treasure is under the rug!", "#content-4");
+            // Special "Win" Logic
+            const contentEntity = document.querySelector("#content-4");
+            if (currentStage >= 3) {
+               contentEntity.setAttribute("visible", "true");
+               statusText.innerText = ">> MISSION COMPLETE. REWARD UNLOCKED.";
+               statusText.style.color = "#ff00ff"; // Neon Pink
+            }
           });
         }
       });
     </script>
   </head>
   <body>
-    <div id="status-message">Start: Find the Gallery Painting</div>
+    <div id="status-message">>> SYSTEM READY. SCAN GALLERY.</div>
 
     <a-scene riddle-logic mindar-image="imageTargetSrc: ./targets.mind;" color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
       <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
+      <a-assets>
+        <a-mixin id="neon-bg" geometry="primitive: plane; width: 1.5; height: 0.8" material="color: black; opacity: 0.8; transparent: true"></a-mixin>
+        <a-mixin id="neon-text" text="font: sourcecodepro; align: center; width: 3; color: #00ffff"></a-mixin>
+      </a-assets>
+
       <a-entity id="target-1" mindar-image-target="targetIndex: 0">
-        <a-entity id="content-1" visible="true">
-          <a-text value="The First Word is: \nsearch" align="center" color="#4CC3D9" width="6"></a-text>
-          <a-plane color="black" opacity="0.7" width="2" height="1" position="0 0 -0.1"></a-plane>
+        <a-entity id="content-1" visible="true"> <a-entity position="0 0 0" scale="0.8 0.8 0.8">
+              <a-text id="text-1" mixin="neon-text" value="CLUE 01:\nSEARCH"></a-text>
+              <a-entity mixin="neon-bg" position="0 0 -0.01"></a-entity>
+           </a-entity>
         </a-entity>
       </a-entity>
 
       <a-entity id="target-2" mindar-image-target="targetIndex: 1">
         <a-entity id="content-2" visible="false">
-          <a-text value="The Second Word is: \nhigh" align="center" color="#4CC3D9" width="6"></a-text>
-          <a-plane color="black" opacity="0.7" width="2" height="1" position="0 0 -0.1"></a-plane>
+           <a-entity position="0 0 0" scale="0.8 0.8 0.8">
+              <a-text id="text-2" mixin="neon-text" value="CLUE 02:\nHIGH"></a-text>
+              <a-entity mixin="neon-bg" position="0 0 -0.01"></a-entity>
+           </a-entity>
         </a-entity>
       </a-entity>
 
       <a-entity id="target-3" mindar-image-target="targetIndex: 2">
         <a-entity id="content-3" visible="false">
-          <a-text value="The Third Word is: \nand" align="center" color="#4CC3D9" width="6"></a-text>
-          <a-plane color="black" opacity="0.7" width="2" height="1" position="0 0 -0.1"></a-plane>
+           <a-entity position="0 0 0" scale="0.8 0.8 0.8">
+              <a-text id="text-3" mixin="neon-text" value="CLUE 03:\nAND"></a-text>
+              <a-entity mixin="neon-bg" position="0 0 -0.01"></a-entity>
+           </a-entity>
         </a-entity>
       </a-entity>
 
       <a-entity id="target-4" mindar-image-target="targetIndex: 3">
         <a-entity id="content-4" visible="false">
-          <a-text value="FINAL MESSAGE: \nSearch high and low \nTreasure is under the rug!" align="center" color="gold" width="6" scale="1.5 1.5 1.5"></a-text>
-          <a-plane color="black" opacity="0.8" width="3.5" height="1.5" position="0 0 -0.1"></a-plane>
+           <a-entity position="0 0 0" scale="1 1 1"> <a-text id="text-4" font="sourcecodepro" align="center" width="4" color="#39ff14" value="ACCESS GRANTED\n\nTREASURE LOCATION:\nUNDER THE RUG"></a-text>
+              <a-plane color="black" opacity="0.9" width="2.5" height="1.5" position="0 0 -0.01"></a-plane>
+           </a-entity>
         </a-entity>
       </a-entity>
 
