@@ -5,33 +5,29 @@
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
     
     <style>
-      /* Hide the scanning animation */
       .mindar-ui-scanning { display: none !important; }
-      
-      /* KILL the VR Button (The goggles icon) */
       .a-enter-vr-button { display: none !important; }
 
-      /* HUD: Floating "Pill" Design */
+      /* HUD: Adjusted to allow text wrapping for the longer start clue */
       #status-message {
         position: absolute;
-        bottom: 50px; /* Moved up to avoid Home Bar/UI */
-        left: 5%;     /* Center it */
-        width: 90%;   /* Prevent clipping off edge */
-        box-sizing: border-box; /* Ensures padding doesn't break width */
-        
+        bottom: 50px; 
+        left: 5%;     
+        width: 90%;   
+        box-sizing: border-box; 
         text-align: center;
         color: #00ffff; 
         font-family: 'Courier New', Courier, monospace; 
         font-weight: bold;
-        font-size: 14px; /* Slightly smaller for safety */
-        line-height: 1.5em;
-        
+        font-size: 14px; 
+        line-height: 1.4em;
         background: rgba(0, 0, 0, 0.85); 
-        padding: 10px 15px;
-        border: 1px solid #00ffff; /* Full border for "Chip" look */
-        border-radius: 15px;       /* Rounded corners */
+        padding: 15px;
+        border: 1px solid #00ffff; 
+        border-radius: 15px;       
         pointer-events: none;
         z-index: 999;
+        white-space: pre-wrap; /* Allows the \n to work in the HUD */
       }
     </style>
 
@@ -50,14 +46,16 @@
               
               if (currentStage === requiredStage) {
                 currentStage = requiredStage + 1;
-                statusText.innerText = ">> UPDATE: " + nextStageMsg; 
-                statusText.style.borderColor = "#39ff14"; // Green border flash
-                statusText.style.color = "#39ff14";       // Green text flash
+                
+                // FLASH EFFECT
+                statusText.innerText = ">> " + nextStageMsg; 
+                statusText.style.borderColor = "#39ff14"; 
+                statusText.style.color = "#39ff14";       
                 
                 setTimeout(() => { 
                   statusText.style.borderColor = "#00ffff"; 
                   statusText.style.color = "#00ffff"; 
-                }, 3000);
+                }, 4000);
               }
 
               contentEntity.setAttribute("visible", "true");
@@ -67,27 +65,27 @@
 
           // --- EVENT LISTENERS ---
           
-          // Target 1: Gallery
+          // Target 1: Gallery -> Reveals Clue for Tile
           document.querySelector('#target-1').addEventListener("targetFound", event => {
-            checkAndReveal(0, 0, "DATA FOUND. SEARCH FOR THE TILE.", "#content-1", "#text-1");
+            checkAndReveal(0, 0, "CLUE 1 DECRYPTED.\nCHECK THE 3D TEXT.", "#content-1", "#text-1");
           });
 
-          // Target 2: Tile
+          // Target 2: Tile -> Reveals Clue for Peacocks
           document.querySelector('#target-2').addEventListener("targetFound", event => {
-            checkAndReveal(1, 1, "DECRYPTING... FIND THE PEACOCKS.", "#content-2", "#text-2");
+            checkAndReveal(1, 1, "CLUE 2 DECRYPTED.\nCHECK THE 3D TEXT.", "#content-2", "#text-2");
           });
 
-          // Target 3: Peacocks
+          // Target 3: Peacocks -> Reveals Clue for Sunset
           document.querySelector('#target-3').addEventListener("targetFound", event => {
-            checkAndReveal(2, 2, "ALMOST THERE. FIND THE SUNSET.", "#content-3", "#text-3");
+            checkAndReveal(2, 2, "CLUE 3 DECRYPTED.\nCHECK THE 3D TEXT.", "#content-3", "#text-3");
           });
 
-          // Target 4: Sunset
+          // Target 4: Sunset -> Win State
           document.querySelector('#target-4').addEventListener("targetFound", event => {
              const contentEntity = document.querySelector("#content-4");
              if (currentStage >= 3) {
                contentEntity.setAttribute("visible", "true");
-               statusText.innerText = ">> MISSION COMPLETE.";
+               statusText.innerText = ">> MISSION COMPLETE.\nREWARD UNLOCKED.";
                statusText.style.borderColor = "#ff00ff"; 
                statusText.style.color = "#ff00ff"; 
              }
@@ -97,20 +95,20 @@
     </script>
   </head>
   <body>
-    <div id="status-message">>> SYSTEM READY. SCAN GALLERY.</div>
+    <div id="status-message">>> CLUE 01:\nFIND THE SCENE THAT HANGS ABOUT,\nWITH PLANTS AND TREES\nOF THE PALM HOUSE.</div>
 
     <a-scene riddle-logic mindar-image="imageTargetSrc: ./targets.mind;" color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
       <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
       <a-assets>
-        <a-mixin id="neon-bg" geometry="primitive: plane; width: 1.1; height: 0.45" material="color: black; opacity: 0.85; transparent: true"></a-mixin>
-        <a-mixin id="neon-text" text="font: sourcecodepro; align: center; width: 3; color: #00ffff"></a-mixin>
+        <a-mixin id="neon-bg" geometry="primitive: plane; width: 1.8; height: 0.75" material="color: black; opacity: 0.85; transparent: true"></a-mixin>
+        <a-mixin id="neon-text" text="font: sourcecodepro; align: center; width: 3.6; color: #00ffff"></a-mixin>
       </a-assets>
 
       <a-entity id="target-1" mindar-image-target="targetIndex: 0">
         <a-entity id="content-1" visible="true"> 
            <a-entity position="0 0 0" scale="0.8 0.8 0.8">
-              <a-text id="text-1" mixin="neon-text" value="CLUE 01:\nSEARCH"></a-text>
+              <a-text id="text-1" mixin="neon-text" value="A BOUQUET CARVED\nIN HEAVY STONE,\nWITH PETALS DARK\nAS OBSIDIAN BONE."></a-text>
               <a-entity mixin="neon-bg" position="0 0 -0.01"></a-entity>
            </a-entity>
         </a-entity>
@@ -119,7 +117,7 @@
       <a-entity id="target-2" mindar-image-target="targetIndex: 1">
         <a-entity id="content-2" visible="false">
            <a-entity position="0 0 0" scale="0.8 0.8 0.8">
-              <a-text id="text-2" mixin="neon-text" value="CLUE 02:\nHIGH"></a-text>
+              <a-text id="text-2" mixin="neon-text" value="A ROYAL PAIR\nWITH FEATHERS BRIGHT,\nA HUNDRED EYES\nBUT ZERO SIGHT."></a-text>
               <a-entity mixin="neon-bg" position="0 0 -0.01"></a-entity>
            </a-entity>
         </a-entity>
@@ -128,7 +126,7 @@
       <a-entity id="target-3" mindar-image-target="targetIndex: 2">
         <a-entity id="content-3" visible="false">
            <a-entity position="0 0 0" scale="0.8 0.8 0.8">
-              <a-text id="text-3" mixin="neon-text" value="CLUE 03:\nAND"></a-text>
+              <a-text id="text-3" mixin="neon-text" value="WHERE FIRE MEETS WATER\nAND DAY MEETS NIGHT,\nFIND THE SCENE\nOF FADING LIGHT."></a-text>
               <a-entity mixin="neon-bg" position="0 0 -0.01"></a-entity>
            </a-entity>
         </a-entity>
