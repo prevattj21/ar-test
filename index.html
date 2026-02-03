@@ -5,22 +5,31 @@
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
     
     <style>
+      /* Hide the scanning animation */
       .mindar-ui-scanning { display: none !important; }
       
-      /* HUD: Darker and cleaner */
+      /* KILL the VR Button (The goggles icon) */
+      .a-enter-vr-button { display: none !important; }
+
+      /* HUD: Floating "Pill" Design */
       #status-message {
         position: absolute;
-        bottom: 20px;
-        left: 0;
-        width: 100%;
+        bottom: 50px; /* Moved up to avoid Home Bar/UI */
+        left: 5%;     /* Center it */
+        width: 90%;   /* Prevent clipping off edge */
+        box-sizing: border-box; /* Ensures padding doesn't break width */
+        
         text-align: center;
-        color: #00ffff; /* Neon Cyan Text */
-        font-family: 'Courier New', Courier, monospace; /* Monospace font */
+        color: #00ffff; 
+        font-family: 'Courier New', Courier, monospace; 
         font-weight: bold;
-        font-size: 16px;
-        background: rgba(0, 0, 0, 0.8); /* Darker background */
-        padding: 15px;
-        border-top: 2px solid #00ffff; /* Neon top border */
+        font-size: 14px; /* Slightly smaller for safety */
+        line-height: 1.5em;
+        
+        background: rgba(0, 0, 0, 0.85); 
+        padding: 10px 15px;
+        border: 1px solid #00ffff; /* Full border for "Chip" look */
+        border-radius: 15px;       /* Rounded corners */
         pointer-events: none;
         z-index: 999;
       }
@@ -37,61 +46,51 @@
             const contentEntity = document.querySelector(contentId);
             const textEntity = document.querySelector(textId);
             
-            // LOGIC: Check if we are at the right stage
             if (currentStage >= requiredStage) {
               
-              // First time finding it?
               if (currentStage === requiredStage) {
                 currentStage = requiredStage + 1;
-                statusText.innerText = ">> SYSTEM UPDATE: " + nextStageMsg; 
-                statusText.style.color = "#39ff14"; // Flash Green on success
+                statusText.innerText = ">> UPDATE: " + nextStageMsg; 
+                statusText.style.borderColor = "#39ff14"; // Green border flash
+                statusText.style.color = "#39ff14";       // Green text flash
                 
-                // Reset to cyan after 3 seconds
-                setTimeout(() => { statusText.style.color = "#00ffff"; }, 3000);
+                setTimeout(() => { 
+                  statusText.style.borderColor = "#00ffff"; 
+                  statusText.style.color = "#00ffff"; 
+                }, 3000);
               }
 
-              // REVEAL: Make it visible
               contentEntity.setAttribute("visible", "true");
-              
-              // Ensure color is "Success" Cyan
               textEntity.setAttribute("color", "#00ffff"); 
-
-            } else {
-              // LOCKED STATE (Optional: Show "Access Denied" if you want)
-              // For now, we keep it invisible as requested.
-            }
+            } 
           }
 
           // --- EVENT LISTENERS ---
-
+          
           // Target 1: Gallery
-          const target1 = document.querySelector('#target-1');
-          target1.addEventListener("targetFound", event => {
-            checkAndReveal(0, 0, "DATA UPLOADED. FIND THE TILE.", "#content-1", "#text-1");
+          document.querySelector('#target-1').addEventListener("targetFound", event => {
+            checkAndReveal(0, 0, "DATA FOUND. SEARCH FOR THE TILE.", "#content-1", "#text-1");
           });
 
           // Target 2: Tile
-          const target2 = document.querySelector('#target-2');
-          target2.addEventListener("targetFound", event => {
-            checkAndReveal(1, 1, "ENCRYPTED. FIND THE PEACOCKS.", "#content-2", "#text-2");
+          document.querySelector('#target-2').addEventListener("targetFound", event => {
+            checkAndReveal(1, 1, "DECRYPTING... FIND THE PEACOCKS.", "#content-2", "#text-2");
           });
 
           // Target 3: Peacocks
-          const target3 = document.querySelector('#target-3');
-          target3.addEventListener("targetFound", event => {
-            checkAndReveal(2, 2, "KEY FRAGMENT FOUND. FIND THE SUNSET.", "#content-3", "#text-3");
+          document.querySelector('#target-3').addEventListener("targetFound", event => {
+            checkAndReveal(2, 2, "ALMOST THERE. FIND THE SUNSET.", "#content-3", "#text-3");
           });
 
           // Target 4: Sunset
-          const target4 = document.querySelector('#target-4');
-          target4.addEventListener("targetFound", event => {
-            // Special "Win" Logic
-            const contentEntity = document.querySelector("#content-4");
-            if (currentStage >= 3) {
+          document.querySelector('#target-4').addEventListener("targetFound", event => {
+             const contentEntity = document.querySelector("#content-4");
+             if (currentStage >= 3) {
                contentEntity.setAttribute("visible", "true");
-               statusText.innerText = ">> MISSION COMPLETE. REWARD UNLOCKED.";
-               statusText.style.color = "#ff00ff"; // Neon Pink
-            }
+               statusText.innerText = ">> MISSION COMPLETE.";
+               statusText.style.borderColor = "#ff00ff"; 
+               statusText.style.color = "#ff00ff"; 
+             }
           });
         }
       });
@@ -104,12 +103,13 @@
       <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
       <a-assets>
-        <a-mixin id="neon-bg" geometry="primitive: plane; width: 1.5; height: 0.8" material="color: black; opacity: 0.8; transparent: true"></a-mixin>
+        <a-mixin id="neon-bg" geometry="primitive: plane; width: 1.1; height: 0.45" material="color: black; opacity: 0.85; transparent: true"></a-mixin>
         <a-mixin id="neon-text" text="font: sourcecodepro; align: center; width: 3; color: #00ffff"></a-mixin>
       </a-assets>
 
       <a-entity id="target-1" mindar-image-target="targetIndex: 0">
-        <a-entity id="content-1" visible="true"> <a-entity position="0 0 0" scale="0.8 0.8 0.8">
+        <a-entity id="content-1" visible="true"> 
+           <a-entity position="0 0 0" scale="0.8 0.8 0.8">
               <a-text id="text-1" mixin="neon-text" value="CLUE 01:\nSEARCH"></a-text>
               <a-entity mixin="neon-bg" position="0 0 -0.01"></a-entity>
            </a-entity>
@@ -136,8 +136,9 @@
 
       <a-entity id="target-4" mindar-image-target="targetIndex: 3">
         <a-entity id="content-4" visible="false">
-           <a-entity position="0 0 0" scale="1 1 1"> <a-text id="text-4" font="sourcecodepro" align="center" width="4" color="#39ff14" value="ACCESS GRANTED\n\nTREASURE LOCATION:\nUNDER THE RUG"></a-text>
-              <a-plane color="black" opacity="0.9" width="2.5" height="1.5" position="0 0 -0.01"></a-plane>
+           <a-entity position="0 0 0" scale="1 1 1"> 
+              <a-text id="text-4" font="sourcecodepro" align="center" width="4" color="#39ff14" value="ACCESS GRANTED\n\nTREASURE LOCATION:\nUNDER THE RUG"></a-text>
+              <a-plane color="black" opacity="0.9" width="2.2" height="1.3" position="0 0 -0.01"></a-plane>
            </a-entity>
         </a-entity>
       </a-entity>
